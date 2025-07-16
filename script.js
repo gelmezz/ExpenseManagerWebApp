@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const homeScreen = document.getElementById('home-screen');
     const incomeMenu = document.getElementById('income-menu');
     const expenseMenu = document.getElementById('expense-menu');
@@ -48,34 +48,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resetDataButton = document.getElementById('reset-data-button');
 
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBbwHWDd_ZCT70nueeaXQ9uHAE8AbzDhbo",
+        authDomain: "expensemanagerapp-a1393.firebaseapp.com",
+        projectId: "expensemanagerapp-a1393",
+        storageBucket: "expensemanagerapp-a1393.firebasestorage.app",
+        messagingSenderId: "369697587560",
+        appId: "1:369697587560:web:a41c23a6a51f8cefa6d6dd"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     let incomes = [];
     let expenses = [];
 
-    function loadData() {
-        const storedIncomes = localStorage.getItem('incomes');
-        const storedExpenses = localStorage.getItem('expenses');
+    async function loadData() {
+        try {
+            const incomesSnapshot = await db.collection('incomes').get();
+            incomes = incomesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        if (storedIncomes) {
-            incomes = JSON.parse(storedIncomes);
+            const expensesSnapshot = await db.collection('expenses').get();
+            expenses = expensesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            // Ensure all items have a transactionType and category for backward compatibility
             incomes.forEach(item => {
                 if (!item.category) item.category = item.type;
                 if (!item.transactionType) item.transactionType = 'income';
-                if (!item.id) item.id = Date.now() + Math.random();
             });
-        }
-        if (storedExpenses) {
-            expenses = JSON.parse(storedExpenses);
             expenses.forEach(item => {
                 if (!item.category) item.category = item.type;
                 if (!item.transactionType) item.transactionType = 'expense';
-                if (!item.id) item.id = Date.now() + Math.random();
             });
+
+            console.log("Data loaded from Firestore:", { incomes, expenses });
+        } catch (error) {
+            console.error("Error loading data from Firestore:", error);
         }
     }
 
-    function saveData() {
-        localStorage.setItem('incomes', JSON.stringify(incomes));
-        localStorage.setItem('expenses', JSON.stringify(expenses));
+    async function saveData() {
+        // Data is saved directly when adding/deleting transactions.
+        // This function is now primarily for initial setup or if a batch save is needed.
+        console.log("saveData() called. Data is saved directly to Firestore on transaction add/delete.");
     }
 
     const pieCtx = document.getElementById('expense-pie-chart').getContext('2d');
@@ -218,19 +235,25 @@ document.addEventListener('DOMContentLoaded', () => {
         balanceChart.update();
     }
 
-    function deleteTransaction(id, type) {
+    async function deleteTransaction(id, type) {
         if (confirm('Sei sicuro di voler eliminare questa transazione?')) {
-            if (type === 'income') {
-                incomes = incomes.filter(item => item.id !== id);
-            } else if (type === 'expense') {
-                expenses = expenses.filter(item => item.id !== id);
+            try {
+                if (type === 'income') {
+                    await db.collection('incomes').doc(id).delete();
+                } else if (type === 'expense') {
+                    await db.collection('expenses').doc(id).delete();
+                }
+                await loadData(); // Reload data after deleting
+                updateTotals();
+                renderHistory();
+                updateMonthlyChart();
+                populateMonthYearFilters();
+                populateStatsYearFilter();
+                alert('Transazione eliminata con successo!');
+            } catch (error) {
+                console.error("Error deleting transaction:", error);
+                alert('Errore durante l\'eliminazione della transazione.');
             }
-            saveData();
-            updateTotals();
-            renderHistory();
-            updateMonthlyChart();
-            populateMonthYearFilters();
-            populateStatsYearFilter();
         }
     }
 
@@ -315,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', (event) => {
                 event.stopPropagation();
                 const row = event.target.closest('.transaction-row');
-                const id = parseFloat(row.dataset.id);
+                const id = row.dataset.id;
                 const type = row.dataset.type;
                 deleteTransaction(id, type);
             });
@@ -386,37 +409,42 @@ document.addEventListener('DOMContentLoaded', () => {
         monthlyBarChart.update();
     }
 
-    function resetAllData() {
+    async function resetAllData() {
         if (confirm('Sei sicuro di voler resettare tutti i dati? Questa operazione è irreversibile.')) {
-            localStorage.clear();
-            incomes = [];
-            expenses = [];
-            updateTotals();
-            renderHistory();
-            updateMonthlyChart();
-            populateMonthYearFilters();
-            populateStatsYearFilter();
-            alert('Tutti i dati sono stati resettati.');
-            showScreen(homeScreen);
-        }
-    }
+            try {
+                // Delete all income documents
+                const incomesSnapshot = await db.collection('incomes').get();
+                const incomeDeletePromises = [];
+                incomesSnapshot.docs.forEach(doc => {
+                    incomeDeletePromises.push(db.collection('incomes').doc(doc.id).delete());
+                });
+                await Promise.all(incomeDeletePromises);
 
-    function resetAllData() {
-        if (confirm('Sei sicuro di voler resettare tutti i dati? Questa operazione è irreversibile.')) {
-            localStorage.clear();
-            incomes = [];
-            expenses = [];
-            updateTotals();
-            renderHistory();
-            updateMonthlyChart();
-            populateMonthYearFilters();
-            populateStatsYearFilter();
-            populateTotalExpensesYearFilter();
-            populateTotalIncomesYearFilter(); // New: populate incomes year filter
-            expensesByCategoryList.innerHTML = '<p>Seleziona un anno e/o un mese per visualizzare le spese per categoria.</p>'; // Clear expenses category list
-            incomesByCategoryList.innerHTML = '<p>Seleziona un anno e/o un mese per visualizzare le entrate per categoria.</p>'; // Clear incomes category list
-            alert('Tutti i dati sono stati resettati.');
-            showScreen(homeScreen);
+                // Delete all expense documents
+                const expensesSnapshot = await db.collection('expenses').get();
+                const expenseDeletePromises = [];
+                expensesSnapshot.docs.forEach(doc => {
+                    expenseDeletePromises.push(db.collection('expenses').doc(doc.id).delete());
+                });
+                await Promise.all(expenseDeletePromises);
+
+                incomes = [];
+                expenses = [];
+                updateTotals();
+                renderHistory();
+                updateMonthlyChart();
+                populateMonthYearFilters();
+                populateStatsYearFilter();
+                populateTotalExpensesYearFilter();
+                populateTotalIncomesYearFilter();
+                expensesByCategoryList.innerHTML = '<p>Seleziona un anno e/o un mese per visualizzare le spese per categoria.</p>';
+                incomesByCategoryList.innerHTML = '<p>Seleziona un anno e/o un mese per visualizzare le entrate per categoria.</p>';
+                alert('Tutti i dati sono stati resettati.');
+                showScreen(homeScreen);
+            } catch (error) {
+                console.error("Error resetting data:", error);
+                alert('Errore durante il reset dei dati.');
+            }
         }
     }
 
@@ -581,7 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showScreen(totalBalanceScreen);
     }
 
-    loadData();
+    await loadData();
     showScreen(homeScreen);
     updateTotals();
     populateMonthYearFilters();
@@ -660,17 +688,23 @@ document.addEventListener('DOMContentLoaded', () => {
             transactionType: 'income' 
         };
 
-        incomes.push(incomeData);
-        saveData(); 
-        updateTotals();
-        showScreen(homeScreen);
-        incomeForm.reset();
-        if (incomeTypeSelect.value === 'stipendio') {
-            incomeNoteField.style.display = 'none';
-            incomeNoteField.previousElementSibling.style.display = 'none';
-        }
-        populateMonthYearFilters(); 
-        populateStatsYearFilter(); 
+        try {
+            await db.collection('incomes').add(incomeData);
+            await loadData(); // Reload data after adding
+            updateTotals();
+            showScreen(homeScreen);
+            incomeForm.reset();
+            if (incomeTypeSelect.value === 'stipendio') {
+                incomeNoteField.style.display = 'none';
+                incomeNoteField.previousElementSibling.style.display = 'none';
+            }
+            populateMonthYearFilters(); 
+            populateStatsYearFilter(); 
+            alert('Entrata aggiunta con successo!');
+        } catch (error) {
+            console.error("Error adding income:", error);
+            alert('Errore durante l\'aggiunta dell\'entrata.');
+        } 
     });
 
     expenseForm.addEventListener('submit', (event) => {
@@ -685,13 +719,19 @@ document.addEventListener('DOMContentLoaded', () => {
             transactionType: 'expense' 
         };
 
-        expenses.push(expenseData);
-        saveData(); 
-        updateTotals();
-        showScreen(homeScreen);
-        expenseForm.reset();
-        populateMonthYearFilters(); 
-        populateStatsYearFilter(); 
+        try {
+            await db.collection('expenses').add(expenseData);
+            await loadData(); // Reload data after adding
+            updateTotals();
+            showScreen(homeScreen);
+            expenseForm.reset();
+            populateMonthYearFilters(); 
+            populateStatsYearFilter(); 
+            alert('Spesa aggiunta con successo!');
+        } catch (error) {
+            console.error("Error adding expense:", error);
+            alert('Errore durante l\'aggiunta della spesa.');
+        } 
     });
 
     filterMonthSelect.addEventListener('change', renderHistory);
