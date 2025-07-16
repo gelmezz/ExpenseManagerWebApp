@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Spese</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Gestione Spese</h1>
+        <nav class="nav-buttons">
+            <button class="nav-button active" id="home-button">Home</button>
+            <button class="nav-button" id="history-button">Storico</button>
+            <button class="nav-button" id="stats-button">Statistiche</button>
+            <button class="nav-button" id="settings-button">Impostazioni</button>
+        </nav>
+    </header>
+
+    <main id="app-content">
+        <section id="home-screen" class="screen active">
+            <div class="title-and-controls">
+                <h2>Bilancio Mensile</h2>
+                <div class="home-controls">
+                    <button class="action-button" id="add-button">+</button>
+                    <button class="action-button" id="subtract-button">-</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="expense-pie-chart"></canvas>
+            </div>
+            <div class="summary-data">
+                <p>Entrate: [Importo Entrate]</p>
+                <p>Spese: [Importo Spese]</p>
+            </div>
+        </section>
+
+        <!-- Sottomenu Entrate -->
+        <section id="income-menu" class="screen">
+            <h2>Aggiungi Entrata</h2>
+            <form id="income-form">
+                <label for="income-type">Tipo di Entrata:</label>
+                <select id="income-type" name="income-type">
+                    <option value="stipendio">Stipendio</option>
+                    <option value="altro">Altro</option>
+                </select>
+
+                <label for="income-date">Data:</label>
+                <input type="date" id="income-date" name="income-date" required>
+
+                <label for="income-amount">Importo:</label>
+                <input type="number" id="income-amount" name="income-amount" step="0.01" required>
+
+                <label for="income-note">Nota (solo per 'Altro'):</label>
+                <textarea id="income-note" name="income-note"></textarea>
+
+                <button type="submit">Aggiungi</button>
+                <button type="button" class="cancel-button">Annulla</button>
+            </form>
+        </section>
+
+        <!-- Sottomenu Spese -->
+        <section id="expense-menu" class="screen">
+            <h2>Aggiungi Spesa</h2>
+            <form id="expense-form">
+                <label for="expense-type">Tipo di Spesa:</label>
+                <select id="expense-type" name="expense-type">
+                    <option value="fumetti">Fumetti</option>
+                    <option value="libri">Libri</option>
+                    <option value="materiali_artistici">Materiali Artistici</option>
+                    <option value="abbonamenti">Abbonamenti</n>
+                    <option value="sigaretta_elettrica">Sigaretta Elettrica</option>
+                    <option value="svago">Svago</option>
+                    <option value="altro">Altro</option>
+                </select>
+
+                <label for="expense-date">Data:</label>
+                <input type="date" id="expense-date" name="expense-date" required>
+
+                <label for="expense-amount">Importo:</label>
+                <input type="number" id="expense-amount" name="expense-amount" step="0.01" required>
+
+                <label for="expense-note">Nota:</label>
+                <textarea id="expense-note" name="expense-note"></textarea>
+
+                <button type="submit">Aggiungi</button>
+                <button type="button" class="cancel-button">Annulla</button>
+            </form>
+        </section>
+
+        <!-- Schermata Storico -->
+        <section id="history-screen" class="screen">
+            <h2>Storico Transazioni</h2>
+            <div class="filters">
+                <label for="filter-month">Mese:</label>
+                <select id="filter-month">
+                    <option value="all">Tutti i Mesi</option>
+                    <option value="01">Gennaio</option>
+                    <option value="02">Febbraio</option>
+                    <option value="03">Marzo</option>
+                    <option value="04">Aprile</option>
+                    <option value="05">Maggio</option>
+                    <option value="06">Giugno</option>
+                    <option value="07">Luglio</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Settembre</option>
+                    <option value="10">Ottobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Dicembre</option>
+                </select>
+
+                <label for="filter-year">Anno:</label>
+                <select id="filter-year">
+                    <option value="all">Tutti gli Anni</option>
+                    <!-- Gli anni verranno aggiunti dinamicamente da JS -->
+                </select>
+            </div>
+            <div class="history-content">
+                <div class="income-history">
+                    <h3>Entrate</h3>
+                    <div id="income-transactions-list">
+                        <!-- Le entrate verranno caricate qui dal JavaScript -->
+                        <p>Nessuna entrata registrata.</p>
+                    </div>
+                </div>
+                <div class="expense-history">
+                    <h3>Spese</h3>
+                    <div id="expense-transactions-list">
+                        <!-- Le spese verranno caricate qui dal JavaScript -->
+                        <p>Nessuna spesa registrata.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Schermata Statistiche -->
+        <section id="stats-screen" class="screen">
+            <div class="stats-controls">
+                <label for="stats-filter-year">Anno:</label>
+                <select id="stats-filter-year">
+                    <option value="all">Tutti gli Anni</option>
+                    <!-- Gli anni verranno aggiunti dinamicamente da JS -->
+                </select>
+            </div>
+            <h2>Statistiche Mensili</h2>
+            <div class="chart-container">
+                <canvas id="monthly-bar-chart"></canvas>
+            </div>
+        </section>
+
+        <!-- Schermata Impostazioni -->
+        <section id="settings-screen" class="screen">
+            <h2>Impostazioni</h2>
+            <p>Contenuto delle impostazioni verrà aggiunto qui.</p>
+            <button id="reset-data-button" class="action-button">Reset Dati</button>
+        </section>
+
+        <!-- Altre schermate verranno aggiunte qui -->
+    </main>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
