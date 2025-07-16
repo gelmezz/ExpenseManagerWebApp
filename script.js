@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         let tableHtml = '<table>';
-        tableHtml += '<thead><tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Importo</th></tr></thead>';
+        tableHtml += '<thead><tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Nota</th><th>Importo</th></tr></thead>';
         tableHtml += '<tbody>';
 
         if (allTransactions.length === 0) {
@@ -568,6 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td>${formattedDate}</td>
                         <td>${type}</td>
                         <td>${displayCategory}</td>
+                        <td>${transaction.note || '-'}</td>
                         <td class="${amountClass}">${transaction.amount.toFixed(2)} €</td>
                     </tr>
                 `;
