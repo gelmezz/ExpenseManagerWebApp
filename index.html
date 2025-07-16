@@ -10,7 +10,15 @@
 </head>
 <body>
     <header>
-        <h1>Gestione Spese</h1>
+        <div class="header-top-row">
+            <h1>Gestione Spese</h1>
+            <button class="settings-button" id="settings-button" aria-label="Impostazioni">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px">
+                    <path d="M0 0h24v24H0V0z" fill="none"/>
+                    <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.09-.74-1.71-.98l-.37-2.65c-.06-.25-.28-.42-.53-.42h-4c-.25 0-.47.17-.53.42l-.37 2.65c-.62.24-1.19.58-1.71.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.09.74 1.71.98l.37 2.65c.06.25.28.42.53.42h4c.25 0 .47-.17.53-.42l.37-2.65c.62-.24 1.19-.58 1.71-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zm-1.99-1.98c.03.26.06.52.06.78s-.03.52-.06.78l-1.65 1.29-.92.72.18 1.97.25 1.71 1.45.58.72 1.13.4 1.24 1.24.4 1.13.72 1.71.25 1.97.18.72-.92 1.29-1.65c.26-.03.52-.06.78-.06s.52.03.78.06l1.29 1.65.72.92 1.97-.18 1.71-.25.58-1.45 1.13-.72 1.24-.4.4-1.24.72-1.13.25-1.71.18-1.97-.92-.72-1.65-1.29c-.03-.26-.06-.52-.06-.78s.03-.52.06-.78l1.65-1.29.92-.72-.18-1.97-.25-1.71-1.45-.58-.72-1.13-.4-1.24-1.24-.4-1.13-.72-1.71-.25-1.97-.18-.72.92-1.29 1.65-1.29c-.26.03-.52.06-.78.06s-.52-.03-.78-.06l-1.29-1.65-.72-.92-1.97.18-1.71.25-.58 1.45-1.13.72-1.24.4-.4 1.24-.72 1.13-.25 1.71-.18 1.97.92.72 1.65 1.29zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                </svg>
+            </button>
+        </div>
         <nav class="nav-buttons">
             <button class="nav-button active" id="home-button">Home</button>
             <button class="nav-button" id="history-button">Storico</button>
@@ -18,7 +26,6 @@
             <button class="nav-button" id="total-income-button">Tot. entrate</button>
             <button class="nav-button" id="total-expenses-button">Tot. spese</button>
             <button class="nav-button" id="total-balance-button">Totale</button>
-            <button class="nav-button" id="settings-button">Impostazioni</button>
         </nav>
     </header>
 
@@ -163,24 +170,82 @@
         <!-- Schermata Totale Entrate -->
         <section id="total-income-screen" class="screen">
             <h2>Totale Entrate</h2>
+            <div class="filters">
+                <label for="total-incomes-filter-year">Anno:</label>
+                <select id="total-incomes-filter-year">
+                    <option value="all">Tutti gli Anni</option>
+                </select>
+
+                <label for="total-incomes-filter-month">Mese:</label>
+                <select id="total-incomes-filter-month">
+                    <option value="all">Tutti i Mesi</option>
+                    <option value="01">Gennaio</option>
+                    <option value="02">Febbraio</option>
+                    <option value="03">Marzo</option>
+                    <option value="04">Aprile</option>
+                    <option value="05">Maggio</option>
+                    <option value="06">Giugno</option>
+                    <option value="07">Luglio</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Settembre</option>
+                    <option value="10">Ottobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Dicembre</option>
+                </select>
+            </div>
             <div class="summary-data">
                 <p id="total-income-value">Entrate Totali: 0.00 €</p>
+            </div>
+            <div id="incomes-by-category-list">
+                <!-- Le entrate per categoria verranno caricate qui dal JavaScript in riquadri -->
+                <p>Seleziona un anno e/o un mese per visualizzare le entrate per categoria.</p>
             </div>
         </section>
 
         <!-- Schermata Totale Spese -->
         <section id="total-expenses-screen" class="screen">
             <h2>Totale Spese</h2>
+            <div class="filters">
+                <label for="total-expenses-filter-year">Anno:</label>
+                <select id="total-expenses-filter-year">
+                    <option value="all">Tutti gli Anni</option>
+                </select>
+
+                <label for="total-expenses-filter-month">Mese:</label>
+                <select id="total-expenses-filter-month">
+                    <option value="all">Tutti i Mesi</option>
+                    <option value="01">Gennaio</option>
+                    <option value="02">Febbraio</option>
+                    <option value="03">Marzo</option>
+                    <option value="04">Aprile</option>
+                    <option value="05">Maggio</option>
+                    <option value="06">Giugno</option>
+                    <option value="07">Luglio</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Settembre</option>
+                    <option value="10">Ottobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Dicembre</option>
+                </select>
+            </div>
             <div class="summary-data">
                 <p id="total-expenses-value">Spese Totali: 0.00 €</p>
+            </div>
+            <div id="expenses-by-category-list">
+                <!-- Le spese per categoria verranno caricate qui dal JavaScript in riquadri -->
+                <p>Seleziona un anno e/o un mese per visualizzare le spese per categoria.</p>
             </div>
         </section>
 
         <!-- Schermata Totale -->
         <section id="total-balance-screen" class="screen">
-            <h2>Totale</h2>
+            <h2>Bilancio Generale</h2>
             <div class="summary-data">
                 <p id="total-balance-value">Bilancio Totale: 0.00 €</p>
+            </div>
+            <div id="all-transactions-table-container">
+                <!-- La tabella delle transazioni verrà caricata qui dal JavaScript -->
+                <p>Caricamento transazioni...</p>
             </div>
         </section>
 

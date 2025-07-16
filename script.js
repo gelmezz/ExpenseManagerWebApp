@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalExpensesScreen = document.getElementById('total-expenses-screen');
     const totalBalanceScreen = document.getElementById('total-balance-screen');
 
+    const totalExpensesFilterYearSelect = document.getElementById('total-expenses-filter-year');
+    const totalExpensesFilterMonthSelect = document.getElementById('total-expenses-filter-month');
+    const expensesByCategoryList = document.getElementById('expenses-by-category-list');
+
+    const totalIncomesFilterYearSelect = document.getElementById('total-incomes-filter-year');
+    const totalIncomesFilterMonthSelect = document.getElementById('total-incomes-filter-month');
+    const incomesByCategoryList = document.getElementById('incomes-by-category-list');
+
+    const allTransactionsTableContainer = document.getElementById('all-transactions-table-container');
+
     const homeButton = document.getElementById('home-button');
     const historyButton = document.getElementById('history-button');
     const statsButton = document.getElementById('stats-button');
@@ -391,15 +401,140 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function resetAllData() {
+        if (confirm('Sei sicuro di voler resettare tutti i dati? Questa operazione è irreversibile.')) {
+            localStorage.clear();
+            incomes = [];
+            expenses = [];
+            updateTotals();
+            renderHistory();
+            updateMonthlyChart();
+            populateMonthYearFilters();
+            populateStatsYearFilter();
+            populateTotalExpensesYearFilter();
+            populateTotalIncomesYearFilter(); // New: populate incomes year filter
+            expensesByCategoryList.innerHTML = '<p>Seleziona un anno e/o un mese per visualizzare le spese per categoria.</p>'; // Clear expenses category list
+            incomesByCategoryList.innerHTML = '<p>Seleziona un anno e/o un mese per visualizzare le entrate per categoria.</p>'; // Clear incomes category list
+            alert('Tutti i dati sono stati resettati.');
+            showScreen(homeScreen);
+        }
+    }
+
+    function populateTotalIncomesYearFilter() {
+        const years = new Set();
+        incomes.forEach(inc => years.add(new Date(inc.date).getFullYear()));
+
+        let yearOptionsHtml = '<option value="all">Tutti gli Anni</option>';
+        Array.from(years).sort((a, b) => b - a).forEach(year => {
+            yearOptionsHtml += `<option value="${year}">${year}</option>`;
+        });
+        totalIncomesFilterYearSelect.innerHTML = yearOptionsHtml;
+
+        totalIncomesFilterYearSelect.value = new Date().getFullYear().toString(); // Default to current year
+    }
+
     function showTotalIncome() {
-        const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
-        document.getElementById('total-income-value').textContent = `Entrate Totali: ${totalIncome.toFixed(2)} €`;
+        const selectedYear = totalIncomesFilterYearSelect.value;
+        const selectedMonth = totalIncomesFilterMonthSelect.value;
+
+        let filteredIncomes = incomes.filter(item => {
+            const itemDate = new Date(item.date);
+            const itemYear = itemDate.getFullYear().toString();
+            const itemMonth = (itemDate.getMonth() + 1).toString().padStart(2, '0');
+
+            return (selectedYear === 'all' || itemYear === selectedYear) &&
+                   (selectedMonth === 'all' || itemMonth === selectedMonth);
+        });
+
+        const totalIncomeAmount = filteredIncomes.reduce((sum, item) => sum + item.amount, 0);
+        document.getElementById('total-income-value').textContent = `Entrate Totali: ${totalIncomeAmount.toFixed(2)} €`;
+
+        if (selectedMonth !== 'all' && selectedYear !== 'all') {
+            // Group by category for a specific month/year
+            const incomesByCategory = filteredIncomes.reduce((acc, item) => {
+                const category = item.category.charAt(0).toUpperCase() + item.category.slice(1).replace(/_/g, ' ');
+                acc[category] = (acc[category] || 0) + item.amount;
+                return acc;
+            }, {});
+
+            let categoryHtml = '<div class="category-grid">';
+            for (const category in incomesByCategory) {
+                categoryHtml += `
+                    <div class="category-box income-category-box">
+                        <h3>${category}</h3>
+                        <p>${incomesByCategory[category].toFixed(2)} €</p>
+                    </div>
+                `;
+            }
+            categoryHtml += '</div>';
+            incomesByCategoryList.innerHTML = categoryHtml;
+        } else if (selectedYear !== 'all' && selectedMonth === 'all') {
+            // Show total for the year and prompt for month selection
+            incomesByCategoryList.innerHTML = '<p>Seleziona un mese per visualizzare le entrate per categoria.</p>';
+        } else {
+            // Default message if no specific year/month selected
+            incomesByCategoryList.innerHTML = '<p>Seleziona un anno e/o un mese per visualizzare le entrate per categoria.</p>';
+        }
+
         showScreen(totalIncomeScreen);
     }
 
+    function populateTotalExpensesYearFilter() {
+        const years = new Set();
+        expenses.forEach(exp => years.add(new Date(exp.date).getFullYear()));
+
+        let yearOptionsHtml = '<option value="all">Tutti gli Anni</option>';
+        Array.from(years).sort((a, b) => b - a).forEach(year => {
+            yearOptionsHtml += `<option value="${year}">${year}</option>`;
+        });
+        totalExpensesFilterYearSelect.innerHTML = yearOptionsHtml;
+
+        totalExpensesFilterYearSelect.value = new Date().getFullYear().toString(); // Default to current year
+    }
+
     function showTotalExpenses() {
-        const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
-        document.getElementById('total-expenses-value').textContent = `Spese Totali: ${totalExpense.toFixed(2)} €`;
+        const selectedYear = totalExpensesFilterYearSelect.value;
+        const selectedMonth = totalExpensesFilterMonthSelect.value;
+
+        let filteredExpenses = expenses.filter(item => {
+            const itemDate = new Date(item.date);
+            const itemYear = itemDate.getFullYear().toString();
+            const itemMonth = (itemDate.getMonth() + 1).toString().padStart(2, '0');
+
+            return (selectedYear === 'all' || itemYear === selectedYear) &&
+                   (selectedMonth === 'all' || itemMonth === selectedMonth);
+        });
+
+        const totalExpenseAmount = filteredExpenses.reduce((sum, item) => sum + item.amount, 0);
+        document.getElementById('total-expenses-value').textContent = `Spese Totali: ${totalExpenseAmount.toFixed(2)} €`;
+
+        if (selectedMonth !== 'all' && selectedYear !== 'all') {
+            // Group by category for a specific month/year
+            const expensesByCategory = filteredExpenses.reduce((acc, item) => {
+                const category = item.category.charAt(0).toUpperCase() + item.category.slice(1).replace(/_/g, ' ');
+                acc[category] = (acc[category] || 0) + item.amount;
+                return acc;
+            }, {});
+
+            let categoryHtml = '<div class="category-grid">';
+            for (const category in expensesByCategory) {
+                categoryHtml += `
+                    <div class="category-box">
+                        <h3>${category}</h3>
+                        <p>${expensesByCategory[category].toFixed(2)} €</p>
+                    </div>
+                `;
+            }
+            categoryHtml += '</div>';
+            expensesByCategoryList.innerHTML = categoryHtml;
+        } else if (selectedYear !== 'all' && selectedMonth === 'all') {
+            // Show total for the year and prompt for month selection
+            expensesByCategoryList.innerHTML = '<p>Seleziona un mese per visualizzare le spese per categoria.</p>';
+        } else {
+            // Default message if no specific year/month selected
+            expensesByCategoryList.innerHTML = '<p>Seleziona un anno e/o un mese per visualizzare le spese per categoria.</p>';
+        }
+
         showScreen(totalExpensesScreen);
     }
 
@@ -408,6 +543,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
         const totalBalance = totalIncome - totalExpense;
         document.getElementById('total-balance-value').textContent = `Bilancio Totale: ${totalBalance.toFixed(2)} €`;
+
+        const allTransactions = [...incomes, ...expenses];
+
+        allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        let tableHtml = '<table>';
+        tableHtml += '<thead><tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Importo</th></tr></thead>';
+        tableHtml += '<tbody>';
+
+        if (allTransactions.length === 0) {
+            tableHtml += '<tr><td colspan="4">Nessuna transazione registrata.</td></tr>';
+        } else {
+            allTransactions.forEach(transaction => {
+                const formattedDate = new Date(transaction.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+                const type = transaction.transactionType === 'income' ? 'Entrata' : 'Spesa';
+                const displayCategory = transaction.category ? 
+                                        transaction.category.charAt(0).toUpperCase() + transaction.category.slice(1).replace(/_/g, ' ') : 
+                                        'N/A';
+                const amountClass = transaction.transactionType === 'income' ? 'income-amount' : 'expense-amount';
+
+                tableHtml += `
+                    <tr>
+                        <td>${formattedDate}</td>
+                        <td>${type}</td>
+                        <td>${displayCategory}</td>
+                        <td class="${amountClass}">${transaction.amount.toFixed(2)} €</td>
+                    </tr>
+                `;
+            });
+        }
+
+        tableHtml += '</tbody></table>';
+        allTransactionsTableContainer.innerHTML = tableHtml;
+
         showScreen(totalBalanceScreen);
     }
 
@@ -416,14 +585,32 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTotals();
     populateMonthYearFilters();
     populateStatsYearFilter();
+    populateTotalExpensesYearFilter(); // Call new populate function
+    populateTotalIncomesYearFilter(); // New: Call new populate function
 
     homeButton.addEventListener('click', () => showScreen(homeScreen));
     historyButton.addEventListener('click', () => showScreen(historyScreen));
     statsButton.addEventListener('click', () => showScreen(statsScreen));
     settingsButton.addEventListener('click', () => showScreen(settingsScreen));
-    totalIncomeButton.addEventListener('click', showTotalIncome);
-    totalExpensesButton.addEventListener('click', showTotalExpenses);
+    totalIncomeButton.addEventListener('click', () => {
+        showTotalIncome();
+        populateTotalIncomesYearFilter();
+        totalIncomesFilterMonthSelect.value = 'all';
+    });
+    totalExpensesButton.addEventListener('click', () => {
+        showTotalExpenses();
+        // Ensure filters are populated and updated when screen is shown
+        populateTotalExpensesYearFilter();
+        // Set default month to 'all' when entering the screen
+        totalExpensesFilterMonthSelect.value = 'all';
+    });
     totalBalanceButton.addEventListener('click', showTotalBalance);
+
+    // NEW EVENT LISTENERS
+    totalExpensesFilterYearSelect.addEventListener('change', showTotalExpenses);
+    totalExpensesFilterMonthSelect.addEventListener('change', showTotalExpenses);
+    totalIncomesFilterYearSelect.addEventListener('change', showTotalIncome); // New: event listener for incomes year filter
+    totalIncomesFilterMonthSelect.addEventListener('change', showTotalIncome); // New: event listener for incomes month filter
 
     addButton.addEventListener('click', () => {
         showScreen(incomeMenu);
