@@ -676,7 +676,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         incomeNoteField.previousElementSibling.style.display = 'none';
     }
 
-    incomeForm.addEventListener('submit', (event) => {
+    incomeForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const incomeData = {
@@ -707,7 +707,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } 
     });
 
-    expenseForm.addEventListener('submit', (event) => {
+    expenseForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const expenseData = {
