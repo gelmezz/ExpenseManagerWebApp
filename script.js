@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         screenToShow.classList.add('active');
         screenToShow.style.display = 'block';
 
-        [homeButton, historyButton, statsButton, settingsButton].forEach(button => {
+        [homeButton, historyButton, statsButton, totalIncomeButton, totalExpensesButton, totalBalanceButton, settingsButton].forEach(button => {
             button.classList.remove('active');
         });
         if (screenToShow === homeScreen) {
@@ -164,6 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (screenToShow === statsScreen) {
             statsButton.classList.add('active');
             updateMonthlyChart();
+        } else if (screenToShow === totalIncomeScreen) {
+            totalIncomeButton.classList.add('active');
+        } else if (screenToShow === totalExpensesScreen) {
+            totalExpensesButton.classList.add('active');
+        } else if (screenToShow === totalBalanceScreen) {
+            totalBalanceButton.classList.add('active');
         } else if (screenToShow === settingsScreen) {
             settingsButton.classList.add('active');
         }
