@@ -30,6 +30,36 @@
     </header>
 
     <main id="app-content">
+        <section id="auth-screen" class="screen">
+            <h2>Accedi o Registrati</h2>
+            <div class="auth-forms">
+                <form id="login-form">
+                    <h3>Login</h3>
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" required>
+
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" required>
+
+                    <button type="submit">Accedi</button>
+                    <p class="error-message" id="login-error-message"></p>
+                </form>
+
+                <form id="register-form">
+                    <h3>Registrati</h3>
+                    <label for="register-email">Email:</label>
+                    <input type="email" id="register-email" required>
+
+                    <label for="register-password">Password:</label>
+                    <input type="password" id="register-password" required>
+
+                    <button type="submit">Registrati</button>
+                    <p class="error-message" id="register-error-message"></p>
+                </form>
+            </div>
+            <button id="toggle-auth-mode">Passa a Registrazione</button>
+        </section>
+
         <section id="home-screen" class="screen active">
             <div class="title-and-controls">
                 <h2>Bilancio Mensile</h2>
