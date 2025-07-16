@@ -14,7 +14,14 @@
         <nav class="nav-buttons">
             <button class="nav-button active" id="home-button">Home</button>
             <button class="nav-button" id="history-button">Storico</button>
-            <button class="nav-button" id="stats-button">Statistiche</button>
+            <div class="nav-button-dropdown">
+                <button class="nav-button" id="stats-button">Statistiche</button>
+                <div class="dropdown-content">
+                    <a href="#" id="total-income-button">Tot. entrate</a>
+                    <a href="#" id="total-expenses-button">Tot. spese</a>
+                    <a href="#" id="total-balance-button">Totale</a>
+                </div>
+            </div>
             <button class="nav-button" id="settings-button">Impostazioni</button>
         </nav>
     </header>
@@ -155,6 +162,30 @@
             <h2>Impostazioni</h2>
             <p>Contenuto delle impostazioni verrà aggiunto qui.</p>
             <button id="reset-data-button" class="action-button">Reset Dati</button>
+        </section>
+
+        <!-- Schermata Totale Entrate -->
+        <section id="total-income-screen" class="screen">
+            <h2>Totale Entrate</h2>
+            <div class="summary-data">
+                <p id="total-income-value">Entrate Totali: 0.00 €</p>
+            </div>
+        </section>
+
+        <!-- Schermata Totale Spese -->
+        <section id="total-expenses-screen" class="screen">
+            <h2>Totale Spese</h2>
+            <div class="summary-data">
+                <p id="total-expenses-value">Spese Totali: 0.00 €</p>
+            </div>
+        </section>
+
+        <!-- Schermata Totale -->
+        <section id="total-balance-screen" class="screen">
+            <h2>Totale</h2>
+            <div class="summary-data">
+                <p id="total-balance-value">Bilancio Totale: 0.00 €</p>
+            </div>
         </section>
 
         <!-- Altre schermate verranno aggiunte qui -->

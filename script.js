@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyScreen = document.getElementById('history-screen');
     const statsScreen = document.getElementById('stats-screen');
     const settingsScreen = document.getElementById('settings-screen');
+    const totalIncomeScreen = document.getElementById('total-income-screen');
+    const totalExpensesScreen = document.getElementById('total-expenses-screen');
+    const totalBalanceScreen = document.getElementById('total-balance-screen');
 
     const homeButton = document.getElementById('home-button');
     const historyButton = document.getElementById('history-button');
@@ -12,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsButton = document.getElementById('settings-button');
     const addButton = document.getElementById('add-button');
     const subtractButton = document.getElementById('subtract-button');
+    const totalIncomeButton = document.getElementById('total-income-button');
+    const totalExpensesButton = document.getElementById('total-expenses-button');
+    const totalBalanceButton = document.getElementById('total-balance-button');
 
     const incomeTypeSelect = document.getElementById('income-type');
     const incomeNoteField = document.getElementById('income-note');
@@ -22,96 +28,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const incomeTotalDisplay = document.querySelector('.summary-data p:nth-child(1)');
     const expenseTotalDisplay = document.querySelector('.summary-data p:nth-child(2)');
     
-    // Updated transaction lists
     const incomeTransactionsList = document.getElementById('income-transactions-list');
     const expenseTransactionsList = document.getElementById('expense-transactions-list');
 
-    // Filter elements (History Screen)
     const filterMonthSelect = document.getElementById('filter-month');
     const filterYearSelect = document.getElementById('filter-year');
 
-    // Filter elements (Stats Screen)
     const statsFilterYearSelect = document.getElementById('stats-filter-year');
 
-    // Settings elements
     const resetDataButton = document.getElementById('reset-data-button');
 
     let incomes = [];
     let expenses = [];
 
-    // Funzione per caricare i dati dal localStorage
     function loadData() {
         const storedIncomes = localStorage.getItem('incomes');
         const storedExpenses = localStorage.getItem('expenses');
 
         if (storedIncomes) {
             incomes = JSON.parse(storedIncomes);
-            // Ensure old data has 'category' and 'transactionType' and a unique ID
             incomes.forEach(item => {
-                if (!item.category) item.category = item.type; // Migrate old 'type' to 'category'
+                if (!item.category) item.category = item.type;
                 if (!item.transactionType) item.transactionType = 'income';
-                if (!item.id) item.id = Date.now() + Math.random(); // Add unique ID
+                if (!item.id) item.id = Date.now() + Math.random();
             });
         }
         if (storedExpenses) {
             expenses = JSON.parse(storedExpenses);
-            // Ensure old data has 'category' and 'transactionType' and a unique ID
             expenses.forEach(item => {
-                if (!item.category) item.category = item.type; // Migrate old 'type' to 'category'
+                if (!item.category) item.category = item.type;
                 if (!item.transactionType) item.transactionType = 'expense';
-                if (!item.id) item.id = Date.now() + Math.random(); // Add unique ID
+                if (!item.id) item.id = Date.now() + Math.random();
             });
         }
     }
 
-    // Funzione per salvare i dati nel localStorage
     function saveData() {
         localStorage.setItem('incomes', JSON.stringify(incomes));
         localStorage.setItem('expenses', JSON.stringify(expenses));
     }
 
-    // Inizializzazione del grafico a torta (Bilancio Entrate vs Spese)
     const pieCtx = document.getElementById('expense-pie-chart').getContext('2d');
     let balanceChart = new Chart(pieCtx, {
-        type: 'doughnut', // Cambiato da 'pie' a 'doughnut'
+        type: 'doughnut',
         data: {
             labels: ['Entrate Totali', 'Spese Totali'],
             datasets: [{
                 data: [],
-                backgroundColor: [
-                    '#4CAF50', // Verde per le entrate
-                    '#FF6384'  // Rosso per le spese
-                ],
-                hoverOffset: 10, // Effetto hover
-                borderColor: 'white', // Bordo bianco tra le fette
+                backgroundColor: ['#4CAF50', '#FF6384'],
+                hoverOffset: 10,
+                borderColor: 'white',
                 borderWidth: 2,
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // Permette il ridimensionamento
-            cutout: '70%', // Crea il buco al centro (70% del raggio)
+            maintainAspectRatio: false,
+            cutout: '70%',
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: {
-                        font: {
-                            size: 14
-                        }
-                    }
+                    labels: { font: { size: 14 } }
                 },
                 title: {
                     display: true,
                     text: 'Bilancio Entrate vs Spese',
-                    font: {
-                        size: 18
-                    }
+                    font: { size: 18 }
                 }
             }
         }
     });
 
-    // Inizializzazione del grafico a barre (Statistiche Mensili)
     const barCtx = document.getElementById('monthly-bar-chart').getContext('2d');
     let monthlyBarChart = new Chart(barCtx, {
         type: 'bar',
@@ -121,70 +108,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 {
                     label: 'Entrate',
                     data: [],
-                    backgroundColor: 'rgba(76, 175, 80, 0.8)', // Verde più scuro
+                    backgroundColor: 'rgba(76, 175, 80, 0.8)',
                     borderColor: 'rgba(76, 175, 80, 1)',
                     borderWidth: 1,
-                    borderRadius: 5 // Bordi arrotondati
+                    borderRadius: 5
                 },
                 {
                     label: 'Spese',
                     data: [],
-                    backgroundColor: 'rgba(255, 99, 132, 0.8)', // Rosso più scuro
+                    backgroundColor: 'rgba(255, 99, 132, 0.8)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1,
-                    borderRadius: 5 // Bordi arrotondati
+                    borderRadius: 5
                 }
             ]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // Permette il ridimensionamento
+            maintainAspectRatio: false,
             scales: {
-                x: {
-                    grid: {
-                        display: false // Rimuove le linee della griglia sull'asse X
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)' // Colore più chiaro per la griglia sull'asse Y
-                    }
-                }
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.1)' } }
             },
             plugins: {
                 legend: {
                     position: 'top',
-                    labels: {
-                        font: {
-                            size: 14
-                        }
-                    }
+                    labels: { font: { size: 14 } }
                 },
                 title: {
                     display: true,
                     text: 'Entrate e Spese Mensili',
-                    font: {
-                        size: 18
-                    }
+                    font: { size: 18 }
                 }
             }
         }
     });
 
-    // Funzione per mostrare una schermata e nascondere le altre
     function showScreen(screenToShow) {
-        // Nascondi tutte le schermate
         document.querySelectorAll('.screen').forEach(screen => {
             screen.classList.remove('active');
-            screen.style.display = 'none'; // Assicurati che siano nascoste
+            screen.style.display = 'none';
         });
         
-        // Mostra la schermata desiderata
         screenToShow.classList.add('active');
-        screenToShow.style.display = 'block'; // Assicurati che sia visibile
+        screenToShow.style.display = 'block';
 
-        // Aggiorna lo stato attivo dei pulsanti di navigazione
         [homeButton, historyButton, statsButton, settingsButton].forEach(button => {
             button.classList.remove('active');
         });
@@ -192,16 +160,15 @@ document.addEventListener('DOMContentLoaded', () => {
             homeButton.classList.add('active');
         } else if (screenToShow === historyScreen) {
             historyButton.classList.add('active');
-            renderHistory(); // Renderizza lo storico quando si va alla schermata storico
+            renderHistory();
         } else if (screenToShow === statsScreen) {
             statsButton.classList.add('active');
-            updateMonthlyChart(); // Aggiorna il grafico mensile quando si va alla schermata statistiche
+            updateMonthlyChart();
         } else if (screenToShow === settingsScreen) {
             settingsButton.classList.add('active');
         }
     }
 
-    // Funzione per aggiornare i totali visualizzati
     function updateTotals() {
         const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
         const currentYear = new Date().getFullYear().toString();
@@ -224,20 +191,17 @@ document.addEventListener('DOMContentLoaded', () => {
         incomeTotalDisplay.textContent = `Entrate: ${totalIncome.toFixed(2)} €`;
         expenseTotalDisplay.textContent = `Spese: ${totalExpense.toFixed(2)} €`;
 
-        // Aggiungi le classi per il colore
         incomeTotalDisplay.classList.add('income-text');
         expenseTotalDisplay.classList.add('expense-text');
 
         updateBalanceChart(totalIncome, totalExpense);
     }
 
-    // Funzione per aggiornare il grafico del bilancio
     function updateBalanceChart(totalIncome, totalExpense) {
         balanceChart.data.datasets[0].data = [totalIncome, totalExpense];
         balanceChart.update();
     }
 
-    // Funzione per eliminare una transazione
     function deleteTransaction(id, type) {
         if (confirm('Sei sicuro di voler eliminare questa transazione?')) {
             if (type === 'income') {
@@ -254,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Funzione per renderizzare lo storico delle transazioni
     function renderHistory() {
         const selectedMonth = filterMonthSelect.value;
         const selectedYear = filterYearSelect.value;
@@ -280,7 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredIncomes.sort((a, b) => new Date(b.date) - new Date(a.date));
         filteredExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Render Income Transactions
         if (filteredIncomes.length === 0) {
             incomeTransactionsList.innerHTML = '<p>Nessuna entrata registrata con i filtri selezionati.</p>';
         } else {
@@ -304,7 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
             incomeTransactionsList.innerHTML = incomeHtml;
         }
 
-        // Render Expense Transactions
         if (filteredExpenses.length === 0) {
             expenseTransactionsList.innerHTML = '<p>Nessuna spesa registrata con i filtri selezionati.</p>';
         } else {
@@ -327,19 +288,16 @@ document.addEventListener('DOMContentLoaded', () => {
             expenseTransactionsList.innerHTML = expenseHtml;
         }
 
-        // Add event listeners for delete buttons
         document.querySelectorAll('.transaction-row').forEach(row => {
             row.addEventListener('click', (event) => {
-                // Nascondi tutti i pulsanti di eliminazione
                 document.querySelectorAll('.transaction-row').forEach(r => r.classList.remove('active'));
-                // Mostra il pulsante di eliminazione solo per la riga cliccata
                 row.classList.add('active');
             });
         });
 
         document.querySelectorAll('.delete-button').forEach(button => {
             button.addEventListener('click', (event) => {
-                event.stopPropagation(); // Evita che il click sulla X propaghi alla riga
+                event.stopPropagation();
                 const row = event.target.closest('.transaction-row');
                 const id = parseFloat(row.dataset.id);
                 const type = row.dataset.type;
@@ -348,7 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Funzione per popolare i filtri di mese e anno (schermata storico)
     function populateMonthYearFilters() {
         const years = new Set();
         incomes.forEach(inc => years.add(new Date(inc.date).getFullYear()));
@@ -360,13 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         filterYearSelect.innerHTML = yearOptionsHtml;
 
-        // Set current month and year as default filters
         const today = new Date();
         filterMonthSelect.value = (today.getMonth() + 1).toString().padStart(2, '0');
         filterYearSelect.value = today.getFullYear().toString();
     }
 
-    // Funzione per popolare i filtri dell'anno (schermata statistiche)
     function populateStatsYearFilter() {
         const years = new Set();
         incomes.forEach(inc => years.add(new Date(inc.date).getFullYear()));
@@ -378,16 +333,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         statsFilterYearSelect.innerHTML = yearOptionsHtml;
 
-        // Set current year as default filter
         statsFilterYearSelect.value = new Date().getFullYear().toString();
     }
 
-    // Funzione per aggiornare il grafico mensile
     function updateMonthlyChart() {
         const selectedYear = statsFilterYearSelect.value;
         const monthlyData = {};
 
-        // Inizializza monthlyData per tutti i mesi con valori a zero
         const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
         for (let i = 0; i < 12; i++) {
             const monthKey = (i + 1).toString().padStart(2, '0');
@@ -401,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const transactionYear = transactionDate.getFullYear().toString();
 
             if (selectedYear === 'all' || transactionYear === selectedYear) {
-                const month = (transactionDate.getMonth() + 1).toString().padStart(2, '0'); // MM
+                const month = (transactionDate.getMonth() + 1).toString().padStart(2, '0');
                 monthlyData[month].income += (transaction.transactionType === 'income' ? transaction.amount : 0);
                 monthlyData[month].expense += (transaction.transactionType === 'expense' ? transaction.amount : 0);
             }
@@ -418,85 +370,95 @@ document.addEventListener('DOMContentLoaded', () => {
         monthlyBarChart.update();
     }
 
-    // Funzione per resettare tutti i dati
     function resetAllData() {
         if (confirm('Sei sicuro di voler resettare tutti i dati? Questa operazione è irreversibile.')) {
             localStorage.clear();
             incomes = [];
             expenses = [];
-            updateTotals(); // Aggiorna i totali e il grafico
-            renderHistory(); // Aggiorna lo storico
-            updateMonthlyChart(); // Aggiorna il grafico mensile
-            populateMonthYearFilters(); // Ripopola i filtri storico
-            populateStatsYearFilter(); // Ripopola i filtri statistiche
+            updateTotals();
+            renderHistory();
+            updateMonthlyChart();
+            populateMonthYearFilters();
+            populateStatsYearFilter();
             alert('Tutti i dati sono stati resettati.');
-            showScreen(homeScreen); // Torna alla schermata Home
+            showScreen(homeScreen);
         }
     }
 
-    // Carica i dati all'avvio e aggiorna i totali
+    function showTotalIncome() {
+        const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
+        document.getElementById('total-income-value').textContent = `Entrate Totali: ${totalIncome.toFixed(2)} €`;
+        showScreen(totalIncomeScreen);
+    }
+
+    function showTotalExpenses() {
+        const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
+        document.getElementById('total-expenses-value').textContent = `Spese Totali: ${totalExpense.toFixed(2)} €`;
+        showScreen(totalExpensesScreen);
+    }
+
+    function showTotalBalance() {
+        const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
+        const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
+        const totalBalance = totalIncome - totalExpense;
+        document.getElementById('total-balance-value').textContent = `Bilancio Totale: ${totalBalance.toFixed(2)} €`;
+        showScreen(totalBalanceScreen);
+    }
+
     loadData();
     showScreen(homeScreen);
     updateTotals();
-    populateMonthYearFilters(); // Popola i filtri mese/anno all'avvio
-    populateStatsYearFilter(); // Popola i filtri anno statistiche all'avvio
+    populateMonthYearFilters();
+    populateStatsYearFilter();
 
-    // Gestione click pulsanti di navigazione
     homeButton.addEventListener('click', () => showScreen(homeScreen));
     historyButton.addEventListener('click', () => showScreen(historyScreen));
     statsButton.addEventListener('click', () => showScreen(statsScreen));
     settingsButton.addEventListener('click', () => showScreen(settingsScreen));
+    totalIncomeButton.addEventListener('click', showTotalIncome);
+    totalExpensesButton.addEventListener('click', showTotalExpenses);
+    totalBalanceButton.addEventListener('click', showTotalBalance);
 
-    // Gestione click pulsante '+'
     addButton.addEventListener('click', () => {
         showScreen(incomeMenu);
-        // Imposta la data corrente come valore predefinito
         document.getElementById('income-date').valueAsDate = new Date();
     });
 
-    // Gestione click pulsante '-'
     subtractButton.addEventListener('click', () => {
         showScreen(expenseMenu);
-        // Imposta la data corrente come valore predefinito
         document.getElementById('expense-date').valueAsDate = new Date();
     });
 
-    // Gestione click pulsanti 'Annulla'
     document.querySelectorAll('.cancel-button').forEach(button => {
         button.addEventListener('click', () => {
             showScreen(homeScreen);
-            // Resetta i form quando si annulla
             incomeForm.reset();
             expenseForm.reset();
-            // Assicurati che la nota sia nascosta se il tipo è stipendio
-            incomeNoteField.style.display = 'block'; // Mostra per reset
+            incomeNoteField.style.display = 'block';
             incomeNoteField.previousElementSibling.style.display = 'block';
         });
     });
 
-    // Gestione visibilità nota per entrate (stipendio/altro)
     incomeTypeSelect.addEventListener('change', (event) => {
         if (event.target.value === 'stipendio') {
             incomeNoteField.style.display = 'none';
-            incomeNoteField.previousElementSibling.style.display = 'none'; // Nasconde anche la label
+            incomeNoteField.previousElementSibling.style.display = 'none';
         } else {
             incomeNoteField.style.display = 'block';
             incomeNoteField.previousElementSibling.style.display = 'block';
         }
     });
 
-    // Inizializza lo stato della nota al caricamento
     if (incomeTypeSelect.value === 'stipendio') {
         incomeNoteField.style.display = 'none';
         incomeNoteField.previousElementSibling.style.display = 'none';
     }
 
-    // Gestione invio form Entrate
     incomeForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
         const incomeData = {
-            id: Date.now() + Math.random(), // Aggiungi un ID univoco
+            id: Date.now() + Math.random(),
             category: incomeTypeSelect.value, 
             date: document.getElementById('income-date').value,
             amount: parseFloat(document.getElementById('income-amount').value),
@@ -509,7 +471,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTotals();
         showScreen(homeScreen);
         incomeForm.reset();
-        // Reimposta lo stato della nota dopo il reset del form
         if (incomeTypeSelect.value === 'stipendio') {
             incomeNoteField.style.display = 'none';
             incomeNoteField.previousElementSibling.style.display = 'none';
@@ -518,12 +479,11 @@ document.addEventListener('DOMContentLoaded', () => {
         populateStatsYearFilter(); 
     });
 
-    // Gestione invio form Spese
     expenseForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
         const expenseData = {
-            id: Date.now() + Math.random(), // Aggiungi un ID univoco
+            id: Date.now() + Math.random(),
             category: document.getElementById('expense-type').value, 
             date: document.getElementById('expense-date').value,
             amount: parseFloat(document.getElementById('expense-amount').value),
@@ -540,7 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
         populateStatsYearFilter(); 
     });
 
-    // Event listeners for filters
     filterMonthSelect.addEventListener('change', renderHistory);
     filterYearSelect.addEventListener('change', renderHistory);
     statsFilterYearSelect.addEventListener('change', updateMonthlyChart);
