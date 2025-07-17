@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Spese</title>
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js"></script>
 </head>
@@ -14,8 +14,7 @@
             <h1>Gestione Spese</h1>
             <button class="settings-button" id="settings-button" aria-label="Impostazioni">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px">
-                    <path d="M0 0h24v24H0V0z" fill="none"/>
-                    <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.09-.74-1.71-.98l-.37-2.65c-.06-.25-.28-.42-.53-.42h-4c-.25 0-.47.17-.53.42l-.37 2.65c-.62.24-1.19.58-1.71.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.09.74 1.71.98l.37 2.65c.06.25.28.42.53.42h4c.25 0 .47-.17.53-.42l.37-2.65c.62-.24 1.19-.58 1.71-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zm-1.99-1.98c.03.26.06.52.06.78s-.03.52-.06.78l-1.65 1.29-.92.72.18 1.97.25 1.71 1.45.58.72 1.13.4 1.24 1.24.4 1.13.72 1.71.25 1.97.18.72-.92 1.29-1.65c.26-.03.52-.06.78-.06s.52.03.78.06l1.29 1.65.72.92 1.97-.18 1.71-.25.58-1.45 1.13-.72 1.24-.4.4-1.24.72-1.13.25-1.71.18-1.97-.92-.72-1.65-1.29c-.03-.26-.06-.52-.06-.78s.03-.52.06-.78l1.65-1.29.92-.72-.18-1.97-.25-1.71-1.45-.58-.72-1.13-.4-1.24-1.24-.4-1.13-.72-1.71-.25-1.97-.18-.72.92-1.29 1.65-1.29c-.26.03-.52.06-.78.06s-.52-.03-.78-.06l-1.29-1.65-.72-.92-1.97.18-1.71.25-.58 1.45-1.13.72-1.24.4-.4 1.24-.72 1.13-.25 1.71-.18 1.97.92.72 1.65 1.29zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
                 </svg>
             </button>
         </div>
@@ -30,35 +29,7 @@
     </header>
 
     <main id="app-content">
-        <section id="auth-screen" class="screen">
-            <h2>Accedi o Registrati</h2>
-            <div class="auth-forms">
-                <form id="login-form">
-                    <h3>Login</h3>
-                    <label for="login-email">Email:</label>
-                    <input type="email" id="login-email" required>
-
-                    <label for="login-password">Password:</label>
-                    <input type="password" id="login-password" required>
-
-                    <button type="submit">Accedi</button>
-                    <p class="error-message" id="login-error-message"></p>
-                </form>
-
-                <form id="register-form">
-                    <h3>Registrati</h3>
-                    <label for="register-email">Email:</label>
-                    <input type="email" id="register-email" required>
-
-                    <label for="register-password">Password:</label>
-                    <input type="password" id="register-password" required>
-
-                    <button type="submit">Registrati</button>
-                    <p class="error-message" id="register-error-message"></p>
-                </form>
-            </div>
-            <button id="toggle-auth-mode">Passa a Registrazione</button>
-        </section>
+        
 
         <section id="home-screen" class="screen active">
             <div class="title-and-controls">
@@ -295,9 +266,7 @@
             });
         }
     </script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
     <script src="script.js"></script>
 </body>
 </html>
