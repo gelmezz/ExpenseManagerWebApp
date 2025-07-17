@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let incomes = [];
     let expenses = [];
+    let nextId = 1;
 
     const pieCtx = document.getElementById('expense-pie-chart').getContext('2d');
     let balanceChart = new Chart(pieCtx, {
@@ -193,10 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function deleteTransaction(id, type) {
         if (confirm('Sei sicuro di voler eliminare questa transazione?')) {
+            const numericId = parseInt(id, 10);
             if (type === 'income') {
-                incomes = incomes.filter(item => item.id !== id);
+                incomes = incomes.filter(item => item.id !== numericId);
             } else if (type === 'expense') {
-                expenses = expenses.filter(item => item.id !== id);
+                expenses = expenses.filter(item => item.id !== numericId);
             }
             saveData();
             loadData(); // Reload data after deleting
@@ -605,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
 
         const incomeData = {
-            id: Date.now() + Math.random(),
+            id: nextId++,
             category: incomeTypeSelect.value, 
             date: document.getElementById('income-date').value,
             amount: parseFloat(document.getElementById('income-amount').value),
@@ -632,7 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
 
         const expenseData = {
-            id: Date.now() + Math.random(),
+            id: nextId++,
             category: document.getElementById('expense-type').value, 
             date: document.getElementById('expense-date').value,
             amount: parseFloat(document.getElementById('expense-amount').value),
@@ -654,4 +656,36 @@ document.addEventListener('DOMContentLoaded', () => {
     filterMonthSelect.addEventListener('change', renderHistory);
     filterYearSelect.addEventListener('change', renderHistory);
     statsFilterYearSelect.addEventListener('change', updateMonthlyChart);
+    resetDataButton.addEventListener('click', resetAllData);
+
+    // Initial data load and UI setup
+    loadData();
+    updateTotals();
+    renderHistory();
+    populateMonthYearFilters();
+    populateStatsYearFilter();
+    populateTotalExpensesYearFilter();
+    populateTotalIncomesYearFilter();
+    updateMonthlyChart();
 });
+
+function saveData() {
+    localStorage.setItem('incomes', JSON.stringify(incomes));
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+}
+
+function loadData() {
+    const storedIncomes = localStorage.getItem('incomes');
+    const storedExpenses = localStorage.getItem('expenses');
+    incomes = storedIncomes ? JSON.parse(storedIncomes) : [];
+    expenses = storedExpenses ? JSON.parse(storedExpenses) : [];
+
+    let maxId = 0;
+    incomes.forEach(item => {
+        if (item.id > maxId) maxId = item.id;
+    });
+    expenses.forEach(item => {
+        if (item.id > maxId) maxId = item.id;
+    });
+    nextId = maxId + 1;
+}
