@@ -247,11 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formattedDate = new Date(transaction.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
                 const noteContent = transaction.category === 'stipendio' ? '' : (transaction.note || '-');
                 incomeHtml += `
-                    <tr class="transaction-row" data-id="${transaction.id}" data-type="income">
+                    <tr class="transaction-row" data-id="${transaction.id}" data-type="income" title="Clicca per mostrare il pulsante di eliminazione">
                         <td>${formattedDate}</td>
                         <td>${displayCategory}</td>
                         <td class="income-amount">${transaction.amount.toFixed(2)} €</td>
-                        <td class="note-cell">${noteContent}<button class="delete-button">X</button></td>
+                        <td class="note-cell">${noteContent}<button class="delete-button" title="Elimina questa transazione">X</button></td>
                     </tr>
                 `;
             });
@@ -269,11 +269,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                         'N/A';
                 const formattedDate = new Date(transaction.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
                 expenseHtml += `
-                    <tr class="transaction-row" data-id="${transaction.id}" data-type="expense">
+                    <tr class="transaction-row" data-id="${transaction.id}" data-type="expense" title="Clicca per mostrare il pulsante di eliminazione">
                         <td>${formattedDate}</td>
                         <td>${displayCategory}</td>
                         <td class="expense-amount">${transaction.amount.toFixed(2)} €</td>
-                        <td class="note-cell">${transaction.note || '-'}<button class="delete-button">X</button></td>
+                        <td class="note-cell">${transaction.note || '-'}<button class="delete-button" title="Elimina questa transazione">X</button></td>
                     </tr>
                 `;
             });
@@ -281,22 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
             expenseTransactionsList.innerHTML = expenseHtml;
         }
 
-        document.querySelectorAll('.transaction-row').forEach(row => {
-            row.addEventListener('click', (event) => {
-                document.querySelectorAll('.transaction-row').forEach(r => r.classList.remove('active'));
-                row.classList.add('active');
-            });
-        });
-
-        document.querySelectorAll('.delete-button').forEach(button => {
-            button.addEventListener('click', (event) => {
-                event.stopPropagation();
-                const row = event.target.closest('.transaction-row');
-                const id = row.dataset.id;
-                const type = row.dataset.type;
-                deleteTransaction(id, type);
-            });
-        });
+        // Event listeners will be handled by delegation in the initialization
     }
 
     function populateMonthYearFilters() {
@@ -657,6 +642,27 @@ document.addEventListener('DOMContentLoaded', () => {
     filterYearSelect.addEventListener('change', renderHistory);
     statsFilterYearSelect.addEventListener('change', updateMonthlyChart);
     resetDataButton.addEventListener('click', resetAllData);
+
+    // Event delegation for transaction rows and delete buttons
+    document.addEventListener('click', (event) => {
+        // Handle transaction row clicks
+        if (event.target.closest('.transaction-row') && !event.target.classList.contains('delete-button')) {
+            const row = event.target.closest('.transaction-row');
+            document.querySelectorAll('.transaction-row').forEach(r => r.classList.remove('active'));
+            row.classList.add('active');
+        }
+        
+        // Handle delete button clicks
+        if (event.target.classList.contains('delete-button')) {
+            event.stopPropagation();
+            const row = event.target.closest('.transaction-row');
+            if (row) {
+                const id = row.dataset.id;
+                const type = row.dataset.type;
+                deleteTransaction(id, type);
+            }
+        }
+    });
 
     // Initial data load and UI setup
     loadData();
